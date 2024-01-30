@@ -15,7 +15,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'master', url: 'https://github.com/tawfeeq421/react-game.git'
+                git branch: 'main', url: 'https://github.com/tawfeeq421/react-game.git'
             }
         }
         stage("Sonarqube Analysis "){

@@ -15,7 +15,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/tawfeeq421/react-game.git'
+                git branch: 'master', url: 'https://github.com/tawfeeq421/react-game.git'
             }
         }
         
@@ -33,6 +33,22 @@ pipeline{
         stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
+            }
+        }
+        stage("Docker Build & Push"){
+            steps{
+                script{
+                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
+                       sh "docker build -t 2048 ."
+                       sh "docker tag 2048 tawfeeq421/2048:latest "
+                       sh "docker push tawfeeq421/2048:latest "
+                    }
+                }
+            }
+        }
+        stage("TRIVY"){
+            steps{
+                sh "trivy image tawfeeq421/2048:latest > trivy.txt" 
             }
         }
     }

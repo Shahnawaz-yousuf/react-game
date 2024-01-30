@@ -38,7 +38,7 @@ pipeline{
         stage("Docker Build & Push"){
             steps{
                 script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
+                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker'){   
                        sh "docker build -t 2048 ."
                        sh "docker tag 2048 tawfeeq421/2048:latest "
                        sh "docker push tawfeeq421/2048:latest "

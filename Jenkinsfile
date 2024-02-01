@@ -18,37 +18,24 @@ pipeline{
                 git branch: 'main', url: 'https://github.com/tawfeeq421/react-game.git'
             }
         }
-        
-        stage('Install Dependencies') {
-            steps {
-                sh "npm install"
-            }
-        }
-        stage('OWASP FS SCAN') {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
-        stage('TRIVY FS SCAN') {
-            steps {
-                sh "trivy fs . > trivyfs.txt"
-            }
-        }
-        stage("Docker Build & Push"){
+        stage("Sonarqube Analysis "){
             steps{
-                script{
-                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker'){   
-                       sh "docker build -t 2048 ."
-                       sh "docker tag 2048 tawfeeq421/2048:latest "
-                       sh "docker push tawfeeq421/2048:latest "
-                    }
+                withSonarQubeEnv('sonar-server') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Game \
+                    -Dsonar.projectKey=Game '''
                 }
             }
         }
-        stage("TRIVY"){
-            steps{
-                sh "trivy image tawfeeq421/2048:latest > trivy.txt" 
+        stage("quality gate"){
+           steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar' 
+                }
+            } 
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh "npm install"
             }
         }
     }

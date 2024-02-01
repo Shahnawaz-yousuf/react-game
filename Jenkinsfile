@@ -49,5 +49,21 @@ pipeline{
                 sh "trivy fs . > trivyfs.txt"
             }
         }
+        stage("Docker Build & Push"){
+            steps{
+                script{
+                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker'){   
+                       sh "docker build -t 2048 ."
+                       sh "docker tag 2048 tawfeeq421/2048:latest "
+                       sh "docker push tawfeeq421/2048:latest "
+                    }
+                }
+            }
+        }
+        stage("TRIVY"){
+            steps{
+                sh "trivy image tawfeeq421/2048:latest > trivy.txt" 
+            }
+        }
     }
 }

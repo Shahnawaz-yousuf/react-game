@@ -15,7 +15,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/tawfeeq421/react-game.git'
+                git branch: 'main', url: 'https://github.com/Shahnawaz-yousuf/react-game.git'
             }
         }
         stage("Sonarqube Analysis "){
@@ -54,29 +54,20 @@ pipeline{
                 script{
                    withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker'){   
                        sh "docker build -t 2048 ."
-                       sh "docker tag 2048 tawfeeq421/2048:latest "
-                       sh "docker push tawfeeq421/2048:latest "
+                       sh "docker tag 2048 syousuf20/2048:latest "
+                       sh "docker push syousuf20/2048:latest "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image tawfeeq421/2048:latest > trivy.txt" 
+                sh "trivy image syousuf20/2048:latest > trivy.txt" 
             }
         }
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name 2048 -p 3000:3000 tawfeeq421/2048:latest'
-            }
-        }
-        stage('Deploy to kubernets'){
-            steps{
-                script{
-                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
-                       sh 'kubectl apply -f deployment.yaml'
-                  }
-                }
+                sh 'docker run -d --name 2048 -p 3000:3000 syousuf20/2048:latest'
             }
         }
     }
